@@ -77,6 +77,7 @@ export default function Home({navigation, route}) {
     {id: '14', status: 'Alpha', checked: false},
     {id: '15', status: 'Alpha', checked: false},
     {id: '16', status: 'Hadir', time: '08:55', checked: true},
+    {id: '17', status: 'Hadir', time: '08:55', checked: true},
   ];
 
   const renderItem = ({item}) => (
