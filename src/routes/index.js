@@ -4,6 +4,7 @@ import Login from '../screens/Login';
 import Home from '../screens/Home';
 import Register from '../screens/Register';
 import SplashScreen from '../screens/SplashScreen';
+import Demo from '../screens/Demo';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,6 +15,7 @@ export default function Navigator() {
         headerShown: false,
         statusBarColor: '#D9D9D9',
       }}>
+      {/* <Stack.Screen name="Demo" component={Demo} /> */}
       <Stack.Screen name="Splash Screen" component={SplashScreen} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />

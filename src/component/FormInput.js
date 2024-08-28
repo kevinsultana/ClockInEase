@@ -16,6 +16,8 @@ export default function FormInput({
   placeholder,
   keyboardType,
   autoCapitalize,
+  value,
+  onChangeText,
 }) {
   const [secure, setSecure] = useState(true);
   return (
@@ -33,6 +35,8 @@ export default function FormInput({
           secureTextEntry={password && secure}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          value={value}
+          onChangeText={onChangeText}
         />
         <Gap width={5} />
         {password && (

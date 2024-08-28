@@ -2,9 +2,57 @@ import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import React, {useState} from 'react';
 import {Background, FormInput, Gap} from '../component';
 import CheckBox from '@react-native-community/checkbox';
+import axios from 'axios';
 
 export default function Login({navigation}) {
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const submitLogin = async () => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
+    try {
+      const response = await axios.post(
+        'https://dev.pondokdigital.pondokqu.id/api/login',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      navigation.replace('Home', {token: response.data.token});
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log('Axios error:', error.response?.data || error.message);
+      } else {
+        console.log('Submit error:', error);
+      }
+    }
+  };
+  // const submitLogin = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       'https://dev.pondokdigital.pondokqu.id/api/login',
+  //       {
+  //         email: email,
+  //         password: password,
+  //       },
+  //       {headers: {'Content-Type': 'application/json'}},
+  //     );
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error)) {
+  //       console.log('Axios error:', error.response?.data || error.message);
+  //     } else {
+  //       console.log('Submit error:', error);
+  //     }
+  //   }
+  // };
+
   return (
     <View style={{flex: 1}}>
       <Background />
@@ -14,6 +62,8 @@ export default function Login({navigation}) {
             <Text style={styles.textLogin}>Masuk</Text>
             <Gap height={10} />
             <FormInput
+              value={email}
+              onChangeText={text => setEmail(text)}
               title={'Email'}
               password={false}
               iconName={'gmail'}
@@ -25,6 +75,8 @@ export default function Login({navigation}) {
             <Gap height={20} />
 
             <FormInput
+              value={password}
+              onChangeText={text => setPassword(text)}
               title={'Password'}
               password={true}
               iconName={'lock'}
@@ -47,8 +99,7 @@ export default function Login({navigation}) {
             </View>
 
             {/* btn action */}
-            <TouchableNativeFeedback
-              onPress={() => navigation.navigate('Home')}>
+            <TouchableNativeFeedback onPress={() => submitLogin()}>
               <View style={styles.viewBtn}>
                 <Text style={styles.textBtn}>Masuk</Text>
               </View>

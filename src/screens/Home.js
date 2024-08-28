@@ -7,12 +7,59 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Background, Gap} from '../component';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ModalCalender from '../component/home/ModalCalender';
+import axios from 'axios';
 
-export default function Home({navigation}) {
+export default function Home({navigation, route}) {
+  const token = route.params.token;
+
+  const [nama, setNama] = useState('Nama Pengguna');
+  const [email, setEmail] = useState('ContohEmail@gmail.com');
+
+  const getUser = async () => {
+    try {
+      const response = axios.get(
+        'https://dev.pondokdigital.pondokqu.id/api/user',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setNama((await response).data.user.name);
+      setEmail((await response).data.user.email);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log('Axios error:', error.response?.data || error.message);
+      } else {
+        console.log('Submit error:', error);
+      }
+    }
+  };
+
+  const getDataUser = async () => {
+    try {
+      const response = await axios.get(
+        'https://dev.pondokdigital.pondokqu.id/api/get-data-user-in-year',
+        {headers: {Authorization: `Bearer ${token}`}},
+      );
+      console.log(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log('Axios error:', error.response?.data || error.message);
+      } else {
+        console.log('Submit error:', error);
+      }
+    }
+  };
+  useEffect(() => {
+    getUser();
+    // getDataUser();
+  }, []);
+
   const data = [
     {id: '1', status: 'Alpha', checked: false},
     {id: '2', status: 'Hadir', time: '08:00', checked: false},
@@ -67,6 +114,7 @@ export default function Home({navigation}) {
               size={40}
               color={'black'}
               style={{transform: [{rotate: '180deg'}]}}
+              onPress={() => navigation.replace('Login')}
             />
           </View>
         </TouchableNativeFeedback>
@@ -84,8 +132,8 @@ export default function Home({navigation}) {
         <Icon name={'account-circle'} size={60} color={'black'} />
         <Gap width={10} />
         <View>
-          <Text style={styles.textUserName}>Radiant Fadilah</Text>
-          <Text style={styles.textUserEmail}>user@email.com</Text>
+          <Text style={styles.textUserName}>{nama}</Text>
+          <Text style={styles.textUserEmail}>{email}</Text>
         </View>
       </View>
 

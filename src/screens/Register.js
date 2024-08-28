@@ -1,23 +1,106 @@
 import {
+  Button,
   ScrollView,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Background, FormInput, Gap} from '../component';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CheckBox from '@react-native-community/checkbox';
+import axios from 'axios';
 
 export default function Register({navigation}) {
   const [gender, setGender] = useState('');
-  const [divisi, setDivisi] = useState('');
-  const [departement, setDepartement] = useState('');
-  const [cabang, setCabang] = useState('');
   const [jabatan, setJabatan] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+
+  const instance = axios.create({
+    baseURL: 'https://dev.pondokdigital.pondokqu.id/api',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+  });
+
+  const [divisi, setDivisi] = useState([]);
+  const [selectedDivisi, setSelectedDivisi] = useState(2);
+  const [departement, setDepartement] = useState([]);
+  const [selectedDepartemen, setSelectedDepartemen] = useState(0);
+  const [cabang, setCabang] = useState([]);
+  const [selectedCabang, setSelectedCabang] = useState(0);
+  // console.log(divisi);
+  // console.log(selectedDivisi);
+
+  const getDivision = async () => {
+    try {
+      const response = await instance.get('/getAllDivision');
+      setDivisi(response.data);
+      getDepartement();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(
+          'Axios error divisi:',
+          error.response?.data || error.message,
+        );
+      } else {
+        console.log('Submit error divisi:', error);
+      }
+    }
+  };
+
+  const getDepartement = async () => {
+    const divisiId = selectedDivisi;
+    try {
+      const response = await instance.get(`/getDepartment/${divisiId}`);
+      setDepartement(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(
+          'Axios error departemen:',
+          error.response?.data || error.message,
+        );
+      } else {
+        console.log('Submit error departemen:', error);
+      }
+    }
+  };
+
+  const getDepartement1 = async () => {
+    const divisiId = selectedDivisi;
+    try {
+      const response = await instance.get(`/getDepartment/${divisiId}`);
+      setDepartement([]);
+      setDepartement(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(
+          'Axios error departemen:',
+          error.response?.data || error.message,
+        );
+      } else {
+        console.log('Submit error departemen:', error);
+      }
+    }
+  };
+
+  const getBranches = async () => {
+    try {
+      const response = await instance.get('/branches');
+      setCabang(response.data);
+    } catch (error) {
+      console.log('error cabang:', error);
+    }
+  };
+
+  useEffect(() => {
+    getDivision();
+    // getDepartement();
+    getBranches();
+  }, []);
 
   return (
     <View style={{flex: 1}}>
@@ -99,12 +182,18 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'office-building'} size={20} color={'black'} />
                   <Picker
-                    selectedValue={divisi}
+                    selectedValue={selectedDivisi}
                     style={styles.picker}
-                    onValueChange={itemValue => setDivisi(itemValue)}>
-                    <Picker.Item label="Pilih Divisi" value={'Pilih Divisi'} />
-                    <Picker.Item label="Divisi 1" value={'Divisi 1'} />
-                    <Picker.Item label="Divisi 2" value={'Divisi 2'} />
+                    onValueChange={itemValue => {
+                      setSelectedDivisi(itemValue), getDepartement1;
+                    }}>
+                    {divisi.map(item => (
+                      <Picker.Item
+                        key={item.id}
+                        label={item.name}
+                        value={item.id}
+                      />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -122,21 +211,16 @@ export default function Register({navigation}) {
                     color={'black'}
                   />
                   <Picker
-                    selectedValue={departement}
+                    selectedValue={selectedDepartemen}
                     style={styles.picker}
-                    onValueChange={itemValue => setDepartement(itemValue)}>
-                    <Picker.Item
-                      label="Pilih Departement"
-                      value={'Pilih Departement'}
-                    />
-                    <Picker.Item
-                      label="Departement 1"
-                      value={'Departement 1'}
-                    />
-                    <Picker.Item
-                      label="Departement 2"
-                      value={'Departement 2'}
-                    />
+                    onValueChange={value => setSelectedDepartemen(value)}>
+                    {departement.map(item => (
+                      <Picker.Item
+                        key={item.id}
+                        label={item.name}
+                        value={item.name}
+                      />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -150,12 +234,16 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'source-merge'} size={20} color={'black'} />
                   <Picker
-                    selectedValue={cabang}
+                    selectedValue={selectedCabang}
                     style={styles.picker}
-                    onValueChange={itemValue => setCabang(itemValue)}>
-                    <Picker.Item label="Pilih Cabang" value={'Pilih Cabang'} />
-                    <Picker.Item label="Cabang 1" value={'Cabang 1'} />
-                    <Picker.Item label="Cabang 2" value={'Cabang 2'} />
+                    onValueChange={value => setSelectedCabang(value)}>
+                    {cabang.map(item => (
+                      <Picker.Item
+                        key={item.id}
+                        label={item.name}
+                        value={item.name}
+                      />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -167,15 +255,11 @@ export default function Register({navigation}) {
                 <Text style={styles.textPicker}>Pilih Jabatan</Text>
                 <View style={styles.viewPicker}>
                   <Gap width={30} />
-                  <Icon name={'source-merge'} size={20} color={'black'} />
+                  <Icon name={'account-multiple'} size={20} color={'black'} />
                   <Picker
                     selectedValue={jabatan}
                     style={styles.picker}
                     onValueChange={itemValue => setJabatan(itemValue)}>
-                    <Picker.Item
-                      label="Pilih jabatan"
-                      value={'Pilih jabatan'}
-                    />
                     <Picker.Item label="Staff" value={'Staff'} />
                     <Picker.Item label="Supervisor" value={'Supervisor'} />
                     <Picker.Item label="Manager" value={'Manager'} />
@@ -199,6 +283,7 @@ export default function Register({navigation}) {
 
               {/* btn Action */}
               <TouchableNativeFeedback
+                // onPress={getDivision}
                 onPress={() => navigation.navigate('Home')}>
                 <View style={styles.viewBtn}>
                   <Text style={styles.textBtn}>Daftar</Text>
