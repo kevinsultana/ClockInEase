@@ -1,6 +1,10 @@
 import {
-  FlatList,
+  Alert,
   Image,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
@@ -10,8 +14,8 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Background, Gap} from '../component';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ModalCalender from '../component/home/ModalCalender';
 import axios from 'axios';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 export default function Home({navigation, route}) {
   const token = route.params.token;
@@ -35,72 +39,1559 @@ export default function Home({navigation, route}) {
       if (axios.isAxiosError(error)) {
         console.log('Axios error:', error.response?.data || error.message);
       } else {
-        console.log('Submit error:', error);
+        console.log('Submit error getuser:', error);
       }
     }
   };
 
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const getDataUser = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         'https://dev.pondokdigital.pondokqu.id/api/get-data-user-in-year',
         {headers: {Authorization: `Bearer ${token}`}},
       );
-      console.log(response.data);
+      setData(response.data);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (axios.isAxiosError(error)) {
         console.log('Axios error:', error.response?.data || error.message);
       } else {
-        console.log('Submit error:', error);
+        console.log('Submit error getdatauser:', error);
       }
     }
   };
   useEffect(() => {
     getUser();
-    // getDataUser();
+    getDataUser();
   }, []);
+  // const data = {
+  //   Januari: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Februari: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Maret: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   April: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Mei: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Juni: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Juli: [
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  //   Agustus: [
+  //     {
+  //       in: '10:30',
+  //       out: null,
+  //       statusPresence: 'Hadir',
+  //       isReturn: true,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: null,
+  //       out: null,
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //     {
+  //       in: ' ',
+  //       out: ' ',
+  //       statusPresence: 'Alpha',
+  //       isReturn: false,
+  //     },
+  //   ],
+  // };
 
-  const data = [
-    {id: '1', status: 'Alpha', checked: false},
-    {id: '2', status: 'Hadir', time: '08:00', checked: false},
-    {id: '3', status: 'Hadir', time: '07:55', checked: true},
-    {id: '4', status: 'Hadir', time: '17:45', checked: false},
-    {id: '5', status: 'Hadir', time: '08:20', checked: true},
-    {id: '6', status: 'Alpha', checked: false},
-    {id: '7', status: 'Alpha', checked: false},
-    {id: '8', status: 'Alpha', checked: false},
-    {id: '9', status: 'Alpha', checked: false},
-    {id: '10', status: 'Alpha', checked: false},
-    {id: '11', status: 'Alpha', checked: false},
-    {id: '12', status: 'Alpha', checked: false},
-    {id: '13', status: 'Alpha', checked: false},
-    {id: '14', status: 'Alpha', checked: false},
-    {id: '15', status: 'Alpha', checked: false},
-    {id: '16', status: 'Hadir', time: '08:55', checked: true},
-    {id: '17', status: 'Hadir', time: '08:55', checked: true},
+  const months = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
   ];
-
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={[styles.item, item.status === 'Hadir' && styles.hadir]}>
-      <View style={styles.viewRenderHeader}>
-        <Text style={styles.dateText}>{item.id}</Text>
-        {item.checked && (
-          <Icon name={'check-circle-outline'} color={'white'} size={15} />
-        )}
-      </View>
-      <View style={{flex: 1, alignItems: 'center'}}>
-        <Text style={styles.statusText}>{item.status}</Text>
-      </View>
-      <View style={{alignItems: 'center'}}>
-        {item.time && <Text style={styles.timeText}>{item.time}</Text>}
-      </View>
-      <Gap height={5} />
-    </TouchableOpacity>
-  );
+  const [seletedMonth, setSeletedMonth] = useState(new Date().getMonth());
+  const currentMonth = new Date().getMonth();
+  const visibleMonth = months.slice(0, currentMonth + 1);
 
   const [modalVisible, setModalVisible] = useState(false);
   const closeModal = () => setModalVisible(false);
+
+  const submitLogout = async _id => {
+    Alert.alert('Keluar?', 'Sesi anda akan berakhir', [
+      {
+        text: 'Keluar',
+        onPress: async () => {
+          try {
+            await EncryptedStorage.removeItem('credentials');
+            navigation.replace('Login');
+          } catch (error) {
+            navigation.replace('Login');
+          }
+        },
+      },
+      {
+        text: 'Batal',
+      },
+    ]);
+  };
 
   return (
     <View style={{flex: 1}}>
@@ -115,7 +1606,7 @@ export default function Home({navigation, route}) {
               size={40}
               color={'black'}
               style={{transform: [{rotate: '180deg'}]}}
-              onPress={() => navigation.replace('Login')}
+              onPress={() => submitLogout()}
             />
           </View>
         </TouchableNativeFeedback>
@@ -140,15 +1631,23 @@ export default function Home({navigation, route}) {
 
       {/* month control */}
       <View style={styles.viewMonthControl}>
-        <TouchableOpacity style={styles.btnArrow}>
+        <TouchableOpacity
+          style={styles.btnArrow}
+          onPress={() => setSeletedMonth(seletedMonth - 1)}
+          disabled={seletedMonth == 0}>
           <Icon name={'chevron-left'} size={25} color={'black'} />
         </TouchableOpacity>
         <Gap width={20} />
-        <TouchableOpacity style={styles.btnMonth}>
-          <Text style={styles.textMonthControl}>Mei</Text>
+        <TouchableOpacity
+          style={styles.btnMonth}
+          onPress={() => setModalVisible(true)}>
+          <Text style={styles.textMonthControl}>{months[seletedMonth]}</Text>
         </TouchableOpacity>
         <Gap width={20} />
-        <TouchableOpacity style={styles.btnArrow}>
+        <TouchableOpacity
+          style={styles.btnArrow}
+          onPress={() => setSeletedMonth(seletedMonth + 1)}
+          disabled={seletedMonth == new Date().getMonth()}>
           <Icon name={'chevron-right'} size={25} color={'black'} />
         </TouchableOpacity>
         <View style={styles.viewBtnCalender}>
@@ -163,16 +1662,74 @@ export default function Home({navigation, route}) {
       <Gap height={10} />
 
       {/* render item */}
-      <FlatList
-        data={data}
-        numColumns={4}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        style={styles.calendar}
-      />
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={getDataUser} />
+        }
+        contentContainerStyle={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+        }}>
+        {/* {data == true ? (
+          data[months[seletedMonth]].map((item, index) => {
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.dataContainer,
+                  item.statusPresence === 'Hadir' && styles.dataContainerHadir,
+                ]}>
+                <View style={styles.dataContainerHeader}>
+                  <Text style={{color: 'white'}}>{index + 1}</Text>
+                  {item.isReturn && (
+                    <Icon
+                      name={'check-circle-outline'}
+                      color={'white'}
+                      size={20}
+                    />
+                  )}
+                </View>
+                <Text style={styles.dataContainerPresense}>
+                  {item.statusPresence}
+                </Text>
+                <Text style={styles.dataContainerTime}>{item.in}</Text>
+              </View>
+            );
+          })
+        ) : (
+          <Text>data sedang di muat</Text>
+        )} */}
+        {data[months[seletedMonth]]?.map(
+          (item, index) =>
+            (
+              <View
+                key={index}
+                style={[
+                  styles.dataContainer,
+                  item.statusPresence === 'Hadir' && styles.dataContainerHadir,
+                ]}>
+                <View style={styles.dataContainerHeader}>
+                  <Text style={{color: 'white'}}>{index + 1}</Text>
+                  {item.isReturn && (
+                    <Icon
+                      name={'check-circle-outline'}
+                      color={'white'}
+                      size={20}
+                    />
+                  )}
+                </View>
+                <Text style={styles.dataContainerPresense}>
+                  {item.statusPresence}
+                </Text>
+                <Text style={styles.dataContainerTime}>{item.in}</Text>
+              </View>
+            ) || <Text>data sedang di muat</Text>,
+        )}
+      </ScrollView>
 
       {/* qr button */}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
         <View style={styles.viewQRScan}>
           <Image
             source={require('../assets/QrCodeScanner.png')}
@@ -182,12 +1739,120 @@ export default function Home({navigation, route}) {
       </TouchableOpacity>
 
       {/* modal calender */}
-      <ModalCalender visible={modalVisible} onRequestClose={closeModal} />
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeModal}>
+        <View style={styles.viewModal}>
+          <Pressable style={styles.modalBackdrop} onPress={closeModal} />
+          <View style={styles.viewModalContainer}>
+            <View style={styles.viewModalHeader}>
+              <Icon name={'calendar'} color={'black'} size={25} />
+              <Text style={styles.textHeaderModal}>Pilih Bulan</Text>
+              <TouchableOpacity style={{elevation: 5}} onPress={closeModal}>
+                <Icon name={'close-circle'} color={'black'} size={25} />
+              </TouchableOpacity>
+            </View>
+            <Gap height={15} />
+            <View style={{marginHorizontal: 10}}>
+              <ScrollView style={{height: '85%'}}>
+                {visibleMonth.map((months, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSeletedMonth(index), closeModal();
+                      }}>
+                      <View key={index} style={styles.viewModalMonth}>
+                        <View>
+                          <Text style={styles.textModalMonth}>{months}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  viewModalMonth: {
+    backgroundColor: '#EBEBEB',
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  textHeaderModal: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'black',
+  },
+  textModalMonth: {
+    margin: 10,
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'black',
+  },
+  viewModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  viewModalContainer: {
+    backgroundColor: 'white',
+    width: '80%',
+    height: '50%',
+    padding: 20,
+    borderRadius: 15,
+    elevation: 5,
+  },
+  modalBackdrop: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    backgroundColor: 'black',
+    opacity: 0.3,
+  },
+  viewModal: {
+    justifyContent: 'center',
+    flex: 1,
+    alignItems: 'center',
+    maxWidth: 480,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  dataContainerHadir: {
+    backgroundColor: '#1E90FF',
+  },
+  dataContainerTime: {
+    color: 'white',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  dataContainerPresense: {
+    color: 'white',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  dataContainerHeader: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dataContainer: {
+    backgroundColor: '#000000',
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    margin: 5,
+  },
   textMonthControl: {
     fontSize: 15,
     fontWeight: '400',

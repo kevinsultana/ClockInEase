@@ -1,8 +1,10 @@
 import {
-  Button,
+  ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableNativeFeedback,
   View,
 } from 'react-native';
@@ -10,13 +12,15 @@ import React, {useEffect, useState} from 'react';
 import {Background, FormInput, Gap} from '../component';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
 
 export default function Register({navigation}) {
-  const [gender, setGender] = useState('');
-  const [jabatan, setJabatan] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [gender, setGender] = useState('pria');
+  const [jabatan, setJabatan] = useState('staff');
 
   const instance = axios.create({
     baseURL: 'https://dev.pondokdigital.pondokqu.id/api',
@@ -27,7 +31,7 @@ export default function Register({navigation}) {
   });
 
   const [divisi, setDivisi] = useState([]);
-  const [selectedDivisi, setSelectedDivisi] = useState(2);
+  const [selectedDivisi, setSelectedDivisi] = useState(0);
   const [departement, setDepartement] = useState([]);
   const [selectedDepartemen, setSelectedDepartemen] = useState(0);
   const [cabang, setCabang] = useState([]);
@@ -39,7 +43,7 @@ export default function Register({navigation}) {
     try {
       const response = await instance.get('/getAllDivision');
       setDivisi(response.data);
-      getDepartement();
+      getDepartement(response.data[0].id);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(
@@ -52,29 +56,14 @@ export default function Register({navigation}) {
     }
   };
 
-  const getDepartement = async () => {
-    const divisiId = selectedDivisi;
+  const getDepartement = async divisiId => {
     try {
       const response = await instance.get(`/getDepartment/${divisiId}`);
-      setDepartement(response.data);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(
-          'Axios error departemen:',
-          error.response?.data || error.message,
-        );
+      if (response.data) {
+        setDepartement(response.data);
       } else {
-        console.log('Submit error departemen:', error);
+        setDepartement([]);
       }
-    }
-  };
-
-  const getDepartement1 = async () => {
-    const divisiId = selectedDivisi;
-    try {
-      const response = await instance.get(`/getDepartment/${divisiId}`);
-      setDepartement([]);
-      setDepartement(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(
@@ -96,9 +85,63 @@ export default function Register({navigation}) {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+
+  const submitRegister = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        'https://dev.pondokdigital.pondokqu.id/api/register',
+        {
+          name: name,
+          gender: gender,
+          email: email,
+          phone_number: phoneNumber,
+          password: password,
+          division: selectedDivisi,
+          departement: selectedDepartemen,
+          branch: selectedCabang,
+          position: jabatan,
+          device_model: 1234,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      const responseLogin = await axios.post(
+        'https://dev.pondokdigital.pondokqu.id/api/login',
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      await EncryptedStorage.setItem(
+        'credentials',
+        JSON.stringify({email: email, password: password}),
+      );
+      setLoading(false);
+      navigation.replace('Home', {token: response.data.token});
+      ToastAndroid;
+      // navigation.replace('Login');
+    } catch (error) {
+      setLoading(false);
+      if (axios.isAxiosError(error)) {
+        Alert.alert('Gagal register', error.response.data.message);
+        console.log(error.response.data);
+      } else {
+        console.log('register error:', error);
+      }
+    }
+  };
   useEffect(() => {
     getDivision();
-    // getDepartement();
     getBranches();
   }, []);
 
@@ -115,6 +158,8 @@ export default function Register({navigation}) {
 
               {/* Input Nama */}
               <FormInput
+                value={name}
+                onChangeText={text => setName(text)}
                 title={'Nama Lengkap'}
                 password={false}
                 iconName={'account-circle'}
@@ -143,6 +188,8 @@ export default function Register({navigation}) {
 
               {/* Input Nomer Telepon */}
               <FormInput
+                value={phoneNumber}
+                onChangeText={text => setPhoneNumber(text)}
                 title={'Nomor Telepon'}
                 password={false}
                 iconName={'phone'}
@@ -154,6 +201,8 @@ export default function Register({navigation}) {
 
               {/* Input Email */}
               <FormInput
+                value={email}
+                onChangeText={text => setEmail(text)}
                 title={'Email'}
                 password={false}
                 iconName={'gmail'}
@@ -166,6 +215,8 @@ export default function Register({navigation}) {
 
               {/* Input Password */}
               <FormInput
+                value={password}
+                onChangeText={text => setPassword(text)}
                 title={'Password'}
                 password={true}
                 iconName={'lock'}
@@ -185,7 +236,8 @@ export default function Register({navigation}) {
                     selectedValue={selectedDivisi}
                     style={styles.picker}
                     onValueChange={itemValue => {
-                      setSelectedDivisi(itemValue), getDepartement1;
+                      setSelectedDivisi(itemValue);
+                      getDepartement(itemValue);
                     }}>
                     {divisi.map(item => (
                       <Picker.Item
@@ -214,13 +266,20 @@ export default function Register({navigation}) {
                     selectedValue={selectedDepartemen}
                     style={styles.picker}
                     onValueChange={value => setSelectedDepartemen(value)}>
-                    {departement.map(item => (
+                    {departement[0] ? (
+                      departement.map(item => (
+                        <Picker.Item
+                          key={item.id}
+                          label={item.name}
+                          value={item.id}
+                        />
+                      ))
+                    ) : (
                       <Picker.Item
-                        key={item.id}
-                        label={item.name}
-                        value={item.name}
+                        label={'Departemen Belum Tersedia'}
+                        value={'Departemen Belum Tersedia'}
                       />
-                    ))}
+                    )}
                   </Picker>
                 </View>
               </View>
@@ -241,7 +300,7 @@ export default function Register({navigation}) {
                       <Picker.Item
                         key={item.id}
                         label={item.name}
-                        value={item.name}
+                        value={item.id}
                       />
                     ))}
                   </Picker>
@@ -267,26 +326,16 @@ export default function Register({navigation}) {
                 </View>
               </View>
 
-              {/* checkbox ingat saya */}
-              <View style={styles.viewRememberMe}>
-                <CheckBox
-                  value={rememberMe}
-                  onValueChange={() => setRememberMe(!rememberMe)}
-                  tintColors={{true: 'black', false: 'black'}}
-                />
-                <Text
-                  style={styles.textRememberme}
-                  onPress={() => setRememberMe(!rememberMe)}>
-                  Ingat Saya
-                </Text>
-              </View>
+              <Gap height={30} />
 
               {/* btn Action */}
-              <TouchableNativeFeedback
-                // onPress={getDivision}
-                onPress={() => navigation.navigate('Home')}>
+              <TouchableNativeFeedback onPress={() => submitRegister()}>
                 <View style={styles.viewBtn}>
-                  <Text style={styles.textBtn}>Daftar</Text>
+                  {loading ? (
+                    <ActivityIndicator color={'white'} size={'small'} />
+                  ) : (
+                    <Text style={styles.textBtn}>Daftar</Text>
+                  )}
                 </View>
               </TouchableNativeFeedback>
               <Gap height={10} />
@@ -310,19 +359,6 @@ export default function Register({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  textRememberme: {
-    fontSize: 15,
-    color: 'black',
-    fontWeight: '400',
-  },
-  viewRememberMe: {
-    alignSelf: 'flex-end',
-    marginHorizontal: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 15,
-  },
   textPicker: {
     fontSize: 14,
     fontWeight: '500',

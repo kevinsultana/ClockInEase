@@ -1,57 +1,53 @@
-import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableNativeFeedback,
+  View,
+} from 'react-native';
 import React, {useState} from 'react';
 import {Background, FormInput, Gap} from '../component';
-import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 export default function Login({navigation}) {
-  const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const submitLogin = async () => {
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-
+    setLoading(true);
     try {
       const response = await axios.post(
         'https://dev.pondokdigital.pondokqu.id/api/login',
-        formData,
+        {
+          email: email,
+          password: password,
+        },
         {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         },
       );
+      await EncryptedStorage.setItem(
+        'credentials',
+        JSON.stringify({email: email, password: password}),
+      );
+      setLoading(false);
       navigation.replace('Home', {token: response.data.token});
     } catch (error) {
+      setLoading(false);
       if (axios.isAxiosError(error)) {
+        Alert.alert('Gagal Login', error.response.data.message);
         console.log('Axios error:', error.response?.data || error.message);
       } else {
+        Alert.alert('Gagal Login', error.response.data.message);
         console.log('Submit error:', error);
       }
     }
   };
-  // const submitLogin = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       'https://dev.pondokdigital.pondokqu.id/api/login',
-  //       {
-  //         email: email,
-  //         password: password,
-  //       },
-  //       {headers: {'Content-Type': 'application/json'}},
-  //     );
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       console.log('Axios error:', error.response?.data || error.message);
-  //     } else {
-  //       console.log('Submit error:', error);
-  //     }
-  //   }
-  // };
 
   return (
     <View style={{flex: 1}}>
@@ -84,24 +80,16 @@ export default function Login({navigation}) {
               autoCapitalize={'none'}
             />
 
-            {/* Checkbox Ingat saya */}
-            <View style={styles.viewRememberMe}>
-              <CheckBox
-                value={rememberMe}
-                onValueChange={() => setRememberMe(!rememberMe)}
-                tintColors={{true: 'black', false: 'black'}}
-              />
-              <Text
-                style={styles.textRememberme}
-                onPress={() => setRememberMe(!rememberMe)}>
-                Ingat Saya
-              </Text>
-            </View>
+            <Gap height={30} />
 
             {/* btn action */}
             <TouchableNativeFeedback onPress={() => submitLogin()}>
               <View style={styles.viewBtn}>
-                <Text style={styles.textBtn}>Masuk</Text>
+                {loading ? (
+                  <ActivityIndicator color={'white'} size={'small'} />
+                ) : (
+                  <Text style={styles.textBtn}>Masuk</Text>
+                )}
               </View>
             </TouchableNativeFeedback>
             <Gap height={10} />
