@@ -10,6 +10,7 @@ import React, {useState} from 'react';
 import {Background, FormInput, Gap} from '../component';
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import ApiRequest from '../api/ApiRequest';
 
 export default function Login({navigation}) {
   const [email, setEmail] = useState('');
@@ -19,18 +20,10 @@ export default function Login({navigation}) {
   const submitLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        'https://dev.pondokdigital.pondokqu.id/api/login',
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
+      const response = await ApiRequest().post('/login', {
+        email: email,
+        password: password,
+      });
       await EncryptedStorage.setItem(
         'credentials',
         JSON.stringify({email: email, password: password}),
@@ -82,7 +75,7 @@ export default function Login({navigation}) {
 
             <Gap height={30} />
 
-            {/* btn action */}
+            {/* btn action masuk*/}
             <TouchableNativeFeedback onPress={() => submitLogin()}>
               <View style={styles.viewBtn}>
                 {loading ? (
@@ -92,7 +85,10 @@ export default function Login({navigation}) {
                 )}
               </View>
             </TouchableNativeFeedback>
+
             <Gap height={10} />
+
+            {/* btn action daftar */}
             <TouchableNativeFeedback
               onPress={() => navigation.navigate('Register')}>
               <View
@@ -112,19 +108,6 @@ export default function Login({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  textRememberme: {
-    fontSize: 15,
-    color: 'black',
-    fontWeight: '400',
-  },
-  viewRememberMe: {
-    alignSelf: 'flex-end',
-    marginHorizontal: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 15,
-  },
   textBtn: {
     fontSize: 16,
     fontWeight: '500',

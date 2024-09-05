@@ -13,6 +13,7 @@ import {Background, FormInput, Gap} from '../component';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
+import ApiRequest from '../api/ApiRequest';
 
 export default function Register({navigation}) {
   const [name, setName] = useState('');
@@ -22,26 +23,16 @@ export default function Register({navigation}) {
   const [gender, setGender] = useState('pria');
   const [jabatan, setJabatan] = useState('staff');
 
-  const instance = axios.create({
-    baseURL: 'https://dev.pondokdigital.pondokqu.id/api',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-  });
-
   const [divisi, setDivisi] = useState([]);
   const [selectedDivisi, setSelectedDivisi] = useState(0);
   const [departement, setDepartement] = useState([]);
   const [selectedDepartemen, setSelectedDepartemen] = useState(0);
   const [cabang, setCabang] = useState([]);
   const [selectedCabang, setSelectedCabang] = useState(0);
-  // console.log(divisi);
-  // console.log(selectedDivisi);
 
   const getDivision = async () => {
     try {
-      const response = await instance.get('/getAllDivision');
+      const response = await ApiRequest().get('/getAllDivision');
       setDivisi(response.data);
       getDepartement(response.data[0].id);
     } catch (error) {
@@ -58,7 +49,7 @@ export default function Register({navigation}) {
 
   const getDepartement = async divisiId => {
     try {
-      const response = await instance.get(`/getDepartment/${divisiId}`);
+      const response = await ApiRequest().get(`/getDepartment/${divisiId}`);
       if (response.data) {
         setDepartement(response.data);
       } else {
@@ -78,7 +69,7 @@ export default function Register({navigation}) {
 
   const getBranches = async () => {
     try {
-      const response = await instance.get('/branches');
+      const response = await ApiRequest().get('/branches');
       setCabang(response.data);
     } catch (error) {
       console.log('error cabang:', error);
@@ -90,44 +81,60 @@ export default function Register({navigation}) {
   const submitRegister = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        'https://dev.pondokdigital.pondokqu.id/api/register',
-        {
-          name: name,
-          gender: gender,
-          email: email,
-          phone_number: phoneNumber,
-          password: password,
-          division: selectedDivisi,
-          departement: selectedDepartemen,
-          branch: selectedCabang,
-          position: jabatan,
-          device_model: 1234,
-        },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-      const responseLogin = await axios.post(
-        'https://dev.pondokdigital.pondokqu.id/api/login',
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
+      const response = await ApiRequest().post('/register', {
+        name: name,
+        gender: gender,
+        email: email,
+        phone_number: phoneNumber,
+        password: password,
+        division: selectedDivisi,
+        departement: selectedDepartemen,
+        branch: selectedCabang,
+        position: jabatan,
+        device_model: 12345,
+      });
+      // const response = await axios.post(
+      //   'https://dev.pondokdigital.pondokqu.id/api/register',
+      //   {
+      //     name: name,
+      //     gender: gender,
+      //     email: email,
+      //     phone_number: phoneNumber,
+      //     password: password,
+      //     division: selectedDivisi,
+      //     departement: selectedDepartemen,
+      //     branch: selectedCabang,
+      //     position: jabatan,
+      //     device_model: 1234,
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'multipart/form-data',
+      //     },
+      //   },
+      // );
+      const responseLogin = await ApiRequest().post('/login', {
+        email: email,
+        password: password,
+      });
+      // const responseLogin = await axios.post(
+      //   'https://dev.pondokdigital.pondokqu.id/api/login',
+      //   {
+      //     email: email,
+      //     password: password,
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'multipart/form-data',
+      //     },
+      //   },
+      // );
       await EncryptedStorage.setItem(
         'credentials',
         JSON.stringify({email: email, password: password}),
       );
       setLoading(false);
-      navigation.replace('Home', {token: response.data.token});
+      navigation.replace('Home', {token: responseLogin.data.token});
       ToastAndroid;
       // navigation.replace('Login');
     } catch (error) {
