@@ -3,20 +3,16 @@ import React, {useEffect} from 'react';
 import {Background} from '../component';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import axios from 'axios';
+import ApiRequest from '../api/ApiRequest';
 
 export default function SplashScreen({navigation}) {
   async function refreshToken() {
     try {
       const credentials = await EncryptedStorage.getItem('credentials');
       if (credentials) {
-        const response = await axios.post(
-          'https://dev.pondokdigital.pondokqu.id/api/login',
+        const response = await ApiRequest().post(
+          '/login',
           JSON.parse(credentials),
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
         );
         setTimeout(() => {
           navigation.replace('Home', {token: response.data.token});

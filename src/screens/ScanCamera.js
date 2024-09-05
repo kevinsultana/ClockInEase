@@ -7,11 +7,11 @@ import {
   ToastAndroid,
   Alert,
   ActivityIndicator,
+  PermissionsAndroid,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   useCameraDevice,
-  useCameraPermission,
   Camera,
   useCodeScanner,
 } from 'react-native-vision-camera';
@@ -22,20 +22,27 @@ export default function ScanCamera({navigation, route}) {
   const token = route.params.token;
 
   const device = useCameraDevice('back');
-  const {hasPermission, requestPermission} = useCameraPermission();
+  const [hasPermission, setHasPermission] = useState(false);
 
-  const {requestCameraPermission} = useCameraPermission();
-
-  const handleRequestPermission = async () => {
-    const permission = await requestCameraPermission;
-    console.log(permission);
-    if (permission === undefined) {
-      await Linking.openSettings();
-      // di arahkan ke setting
-    } else {
-      // Handle the case where permission is denied
+  async function checkCameraPermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+      );
+      console.log(granted);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        setHasPermission(true);
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (error) {
+      console.log('error check camera permission:', error);
     }
-  };
+  }
+
+  useEffect(() => {
+    checkCameraPermission();
+  }, []);
 
   const presenseIn = async () => {
     try {
@@ -45,22 +52,9 @@ export default function ScanCamera({navigation, route}) {
         longitude: 123456,
         desc: '',
       });
-      // const response = await axios.post(
-      //   'https://dev.pondokdigital.pondokqu.id/api/presence-in',
-      //   {
-      //     status: 'Hadir',
-      //     latitude: 123456,
-      //     longitude: 123456,
-      //     desc: '',
-      //   },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //       Authorization: `bearer ${token}`,
-      //     },
-      //   },
-      // );
+
       console.log(response.data);
+      Alert.alert('', response.data.message);
       ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
       navigation.goBack();
     } catch (error) {
@@ -71,17 +65,8 @@ export default function ScanCamera({navigation, route}) {
   const presenseOut = async () => {
     try {
       const response = await ApiRequest(token).post('/presence-out', null);
-      // const response = await axios.post(
-      //   'https://dev.pondokdigital.pondokqu.id/api/presence-out',
-      //   null,
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       Authorization: `bearer ${token}`,
-      //     },
-      //   },
-      // );
       console.log(response.data);
+      Alert.alert('', response.data.message);
       ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
       navigation.goBack();
     } catch (error) {
@@ -93,19 +78,16 @@ export default function ScanCamera({navigation, route}) {
   };
 
   const PermissionsPage = () => (
-    <View>
+    <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
       <Text>Camera permission is required to scan QR codes.</Text>
       <Button
         title="Request Permission"
-        onPress={() => {
-          handleRequestPermission();
+        onPress={async () => {
+          await Linking.openSettings();
         }}
       />
     </View>
   );
-
-  if (!hasPermission) return <PermissionsPage />;
-  if (device == null) return <NoCameraDeviceError />;
 
   const [scanned, setScanned] = useState(false);
 
@@ -120,10 +102,8 @@ export default function ScanCamera({navigation, route}) {
   const onCodeRead = value => {
     if (value === 'presensi-pulang') {
       presenseOut();
-      // console.log('hit presensi pulang');
     } else if (value === 'presensi-masuk') {
       presenseIn();
-      // console.log('hit presensi masuk')
     } else {
       Alert.alert(
         'Qr Code Tidak Di kenali',
@@ -142,23 +122,14 @@ export default function ScanCamera({navigation, route}) {
       );
     }
   };
+
+  if (!hasPermission) return <PermissionsPage />;
+  if (device == null) return <NoCameraDeviceError />;
+
   if (scanned === true) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'black',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <View
-          style={{
-            backgroundColor: 'white',
-            width: 200,
-            height: 200,
-            borderRadius: 50,
-            justifyContent: 'center',
-          }}>
+      <View style={styles.viewLoading}>
+        <View style={styles.viewLoadingModal}>
           <ActivityIndicator size={'large'} color={'black'} />
         </View>
       </View>
@@ -176,4 +147,18 @@ export default function ScanCamera({navigation, route}) {
       </View>
     );
 }
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  viewLoadingModal: {
+    backgroundColor: 'white',
+    width: 200,
+    height: 200,
+    borderRadius: 50,
+    justifyContent: 'center',
+  },
+  viewLoading: {
+    flex: 1,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

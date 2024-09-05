@@ -205,7 +205,15 @@ export default function Home({navigation, route}) {
                 <Text style={styles.dataContainerPresense}>
                   {item.statusPresence}
                 </Text>
-                <Text style={styles.dataContainerTime}>{item.in}</Text>
+                {item.isReturn === true ? (
+                  <Text style={styles.dataContainerTime}>
+                    {item.out?.slice(0, 5)}
+                  </Text>
+                ) : (
+                  <Text style={styles.dataContainerTime}>
+                    {item.in?.slice(0, 5)}
+                  </Text>
+                )}
               </View>
             ) || <Text>data sedang di muat</Text>,
         )}

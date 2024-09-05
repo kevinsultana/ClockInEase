@@ -93,50 +93,17 @@ export default function Register({navigation}) {
         position: jabatan,
         device_model: 12345,
       });
-      // const response = await axios.post(
-      //   'https://dev.pondokdigital.pondokqu.id/api/register',
-      //   {
-      //     name: name,
-      //     gender: gender,
-      //     email: email,
-      //     phone_number: phoneNumber,
-      //     password: password,
-      //     division: selectedDivisi,
-      //     departement: selectedDepartemen,
-      //     branch: selectedCabang,
-      //     position: jabatan,
-      //     device_model: 1234,
-      //   },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   },
-      // );
       const responseLogin = await ApiRequest().post('/login', {
         email: email,
         password: password,
       });
-      // const responseLogin = await axios.post(
-      //   'https://dev.pondokdigital.pondokqu.id/api/login',
-      //   {
-      //     email: email,
-      //     password: password,
-      //   },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   },
-      // );
       await EncryptedStorage.setItem(
         'credentials',
         JSON.stringify({email: email, password: password}),
       );
       setLoading(false);
       navigation.replace('Home', {token: responseLogin.data.token});
-      ToastAndroid;
-      // navigation.replace('Login');
+      ToastAndroid.show('Berhasil Didaftarkan', ToastAndroid.SHORT);
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error)) {

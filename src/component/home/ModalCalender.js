@@ -86,11 +86,7 @@ export default function ModalCalender({visible, onRequestClose}) {
                   <Text style={styles.textModalMonth}>November</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Desember</Text>
-                </View>
-              </TouchableOpacity>
+
               <Gap height={20} />
             </ScrollView>
           </View>
