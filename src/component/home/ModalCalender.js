@@ -11,7 +11,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Gap from '../Gap';
 
-export default function ModalCalender({visible, onRequestClose}) {
+export default function ModalCalender({visible, onRequestClose, visibleMonth}) {
   return (
     <Modal
       visible={visible}
@@ -30,65 +30,7 @@ export default function ModalCalender({visible, onRequestClose}) {
           </View>
           <Gap height={15} />
           <View style={{marginHorizontal: 10}}>
-            <ScrollView style={{height: '85%'}}>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Januari</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Februari</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Maret</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>April</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Mei</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Juni</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Juli</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Agustus</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>September</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>Oktober</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{marginVertical: 5}}>
-                <View style={{backgroundColor: '#EBEBEB', borderRadius: 10}}>
-                  <Text style={styles.textModalMonth}>November</Text>
-                </View>
-              </TouchableOpacity>
-
-              <Gap height={20} />
-            </ScrollView>
+            <ScrollView style={{height: '85%'}}>{visibleMonth}</ScrollView>
           </View>
         </View>
       </View>

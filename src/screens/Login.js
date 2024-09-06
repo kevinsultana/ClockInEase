@@ -36,7 +36,7 @@ export default function Login({navigation}) {
         Alert.alert('Gagal Login', error.response.data.message);
         console.log('Axios error:', error.response?.data || error.message);
       } else {
-        Alert.alert('Gagal Login', error.response.data.message);
+        Alert.alert('Gagal Login', error.message);
         console.log('Submit error:', error);
       }
     }
@@ -45,7 +45,7 @@ export default function Login({navigation}) {
   return (
     <View style={{flex: 1}}>
       <Background />
-      <View style={{justifyContent: 'center', flex: 1}}>
+      <View style={styles.viewContainer}>
         <View>
           <View style={styles.viewLogin}>
             <Text style={styles.textLogin}>Masuk</Text>
@@ -76,7 +76,9 @@ export default function Login({navigation}) {
             <Gap height={30} />
 
             {/* btn action masuk*/}
-            <TouchableNativeFeedback onPress={() => submitLogin()}>
+            <TouchableNativeFeedback
+              onPress={() => submitLogin()}
+              disabled={email == '' || password == '' || loading}>
               <View style={styles.viewBtn}>
                 {loading ? (
                   <ActivityIndicator color={'white'} size={'small'} />
@@ -108,6 +110,13 @@ export default function Login({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  viewContainer: {
+    justifyContent: 'center',
+    flex: 1,
+    width: '100%',
+    maxWidth: 540,
+    alignSelf: 'center',
+  },
   textBtn: {
     fontSize: 16,
     fontWeight: '500',

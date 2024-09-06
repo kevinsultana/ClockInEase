@@ -14,6 +14,7 @@ import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import ApiRequest from '../api/ApiRequest';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 export default function Register({navigation}) {
   const [name, setName] = useState('');
@@ -34,6 +35,7 @@ export default function Register({navigation}) {
     try {
       const response = await ApiRequest().get('/getAllDivision');
       setDivisi(response.data);
+      setSelectedDivisi(response.data[0].id);
       getDepartement(response.data[0].id);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -52,6 +54,7 @@ export default function Register({navigation}) {
       const response = await ApiRequest().get(`/getDepartment/${divisiId}`);
       if (response.data) {
         setDepartement(response.data);
+        setSelectedDepartemen(response.data[0].id);
       } else {
         setDepartement([]);
       }
@@ -88,10 +91,10 @@ export default function Register({navigation}) {
         phone_number: phoneNumber,
         password: password,
         division: selectedDivisi,
-        departement: selectedDepartemen,
+        department: selectedDepartemen,
         branch: selectedCabang,
         position: jabatan,
-        device_model: 12345,
+        device_model: Math.random(),
       });
       const responseLogin = await ApiRequest().post('/login', {
         email: email,
@@ -124,7 +127,7 @@ export default function Register({navigation}) {
       <Background />
       <ScrollView>
         <Gap height={20} />
-        <View style={{justifyContent: 'center', flex: 1}}>
+        <View style={styles.viewContainer}>
           <View>
             <View style={styles.viewLogin}>
               <Text style={styles.textLogin}>Daftar</Text>
@@ -138,6 +141,7 @@ export default function Register({navigation}) {
                 password={false}
                 iconName={'account-circle'}
                 placeholder={'Masukkan Nama...'}
+                autoCapitalize={'words'}
               />
 
               <Gap height={20} />
@@ -149,6 +153,8 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'human-male-female'} size={20} color={'black'} />
                   <Picker
+                    mode="dropdown"
+                    dropdownIconColor={'black'}
                     selectedValue={gender}
                     style={styles.picker}
                     onValueChange={itemValue => setGender(itemValue)}>
@@ -207,6 +213,7 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'office-building'} size={20} color={'black'} />
                   <Picker
+                    dropdownIconColor={'black'}
                     selectedValue={selectedDivisi}
                     style={styles.picker}
                     onValueChange={itemValue => {
@@ -237,6 +244,7 @@ export default function Register({navigation}) {
                     color={'black'}
                   />
                   <Picker
+                    dropdownIconColor={'black'}
                     selectedValue={selectedDepartemen}
                     style={styles.picker}
                     onValueChange={value => setSelectedDepartemen(value)}>
@@ -267,6 +275,7 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'source-merge'} size={20} color={'black'} />
                   <Picker
+                    dropdownIconColor={'black'}
                     selectedValue={selectedCabang}
                     style={styles.picker}
                     onValueChange={value => setSelectedCabang(value)}>
@@ -290,6 +299,7 @@ export default function Register({navigation}) {
                   <Gap width={30} />
                   <Icon name={'account-multiple'} size={20} color={'black'} />
                   <Picker
+                    dropdownIconColor={'black'}
                     selectedValue={jabatan}
                     style={styles.picker}
                     onValueChange={itemValue => setJabatan(itemValue)}>
@@ -303,7 +313,15 @@ export default function Register({navigation}) {
               <Gap height={30} />
 
               {/* btn Action */}
-              <TouchableNativeFeedback onPress={() => submitRegister()}>
+              <TouchableNativeFeedback
+                onPress={() => submitRegister()}
+                disabled={
+                  loading ||
+                  name == '' ||
+                  phoneNumber == '' ||
+                  email == '' ||
+                  password == ''
+                }>
                 <View style={styles.viewBtn}>
                   {loading ? (
                     <ActivityIndicator color={'white'} size={'small'} />
@@ -333,6 +351,13 @@ export default function Register({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  viewContainer: {
+    justifyContent: 'center',
+    flex: 1,
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
+  },
   textPicker: {
     fontSize: 14,
     fontWeight: '500',
@@ -350,6 +375,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   picker: {
+    color: 'black',
     height: 50,
     width: '100%',
   },

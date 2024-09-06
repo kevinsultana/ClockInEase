@@ -1,13 +1,10 @@
 import {
   Alert,
   Image,
-  Modal,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableNativeFeedback,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,18 +15,25 @@ import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {useFocusEffect} from '@react-navigation/native';
 import ApiRequest from '../api/ApiRequest';
+import HomeHeader from '../component/home/HomeHeader';
+import ModalCalender from '../component/home/ModalCalender';
+import MonthControl from '../component/home/MonthControl';
 
 export default function Home({navigation, route}) {
   const token = route.params.token;
 
-  const [nama, setNama] = useState('Nama Pengguna');
-  const [email, setEmail] = useState('ContohEmail@gmail.com');
+  const [userData, setUserData] = useState({
+    name: 'Nama User',
+    email: 'email@user.com',
+  });
 
   const getUser = async () => {
     try {
-      const response = ApiRequest(token).get('/user');
-      setNama((await response).data.user.name);
-      setEmail((await response).data.user.email);
+      const response = await ApiRequest(token).get('/user');
+      setUserData({
+        name: response.data.user.name,
+        email: response.data.user.email,
+      });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log('Axios error:', error.response?.data || error.message);
@@ -109,67 +113,22 @@ export default function Home({navigation, route}) {
     <View style={{flex: 1}}>
       <Background />
 
-      {/* header logout dan nama aplikasi */}
-      <View style={styles.viewTopHeader}>
-        <TouchableNativeFeedback>
-          <View>
-            <Icon
-              name={'exit-to-app'}
-              size={40}
-              color={'black'}
-              style={{transform: [{rotate: '180deg'}]}}
-              onPress={() => submitLogout()}
-            />
-          </View>
-        </TouchableNativeFeedback>
-        <Gap width={10} />
-        <Text style={styles.textHeader}>Clock In Ease</Text>
-      </View>
-
-      {/* selamat datang */}
-      <View style={{marginHorizontal: 20, marginVertical: 10}}>
-        <Text style={styles.textWelcome}>Selamat datang</Text>
-      </View>
-
-      {/* username email dan icon */}
-      <View style={styles.viewMainHeader}>
-        <Icon name={'account-circle'} size={60} color={'black'} />
-        <Gap width={10} />
-        <View>
-          <Text style={styles.textUserName}>{nama}</Text>
-          <Text style={styles.textUserEmail}>{email}</Text>
-        </View>
-      </View>
+      {/* header logout, nama apk, welcome, userdata*/}
+      <HomeHeader
+        onPress={() => submitLogout()}
+        userDataEmail={userData.email}
+        userDataName={userData.name}
+      />
 
       {/* month control */}
-      <View style={styles.viewMonthControl}>
-        <TouchableOpacity
-          style={styles.btnArrow}
-          onPress={() => setSeletedMonth(seletedMonth - 1)}
-          disabled={seletedMonth == 0}>
-          <Icon name={'chevron-left'} size={25} color={'black'} />
-        </TouchableOpacity>
-        <Gap width={20} />
-        <TouchableOpacity
-          style={styles.btnMonth}
-          onPress={() => setModalVisible(true)}>
-          <Text style={styles.textMonthControl}>{months[seletedMonth]}</Text>
-        </TouchableOpacity>
-        <Gap width={20} />
-        <TouchableOpacity
-          style={styles.btnArrow}
-          onPress={() => setSeletedMonth(seletedMonth + 1)}
-          disabled={seletedMonth == new Date().getMonth()}>
-          <Icon name={'chevron-right'} size={25} color={'black'} />
-        </TouchableOpacity>
-        <View style={styles.viewBtnCalender}>
-          <TouchableOpacity
-            style={styles.btnCalender}
-            onPress={() => setModalVisible(true)}>
-            <Icon name={'calendar'} size={25} color={'black'} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <MonthControl
+        onPressLeft={() => setSeletedMonth(seletedMonth - 1)}
+        disabledLeft={seletedMonth == 0}
+        onPressMonth={() => setModalVisible(true)}
+        textMonth={months[seletedMonth]}
+        onPressRight={() => setSeletedMonth(seletedMonth + 1)}
+        disabledRight={seletedMonth == new Date().getMonth()}
+      />
 
       <Gap height={10} />
 
@@ -177,50 +136,52 @@ export default function Home({navigation, route}) {
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={getDataUser} />
-        }
-        contentContainerStyle={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}>
-        {data[months[seletedMonth]]?.map(
-          (item, index) =>
-            (
-              <View
-                key={index}
-                style={[
-                  styles.dataContainer,
-                  item.statusPresence === 'Hadir' && styles.dataContainerHadir,
-                ]}>
-                <View style={styles.dataContainerHeader}>
-                  <Text style={{color: 'white'}}>{index + 1}</Text>
-                  {item.isReturn && (
-                    <Icon
-                      name={'check-circle-outline'}
-                      color={'white'}
-                      size={20}
-                    />
+        }>
+        <View style={styles.viewRenderData}>
+          {data[months[seletedMonth]]?.map(
+            (item, index) =>
+              (
+                <View
+                  key={index}
+                  style={[
+                    styles.dataContainer,
+                    item.statusPresence === 'Hadir' &&
+                      styles.dataContainerHadir,
+                  ]}>
+                  <View style={styles.dataContainerHeader}>
+                    <Text style={{color: 'white'}}>{index + 1}</Text>
+                    {item.isReturn && (
+                      <Icon
+                        name={'check-circle-outline'}
+                        color={'white'}
+                        size={20}
+                      />
+                    )}
+                  </View>
+                  <Text style={styles.dataContainerPresense}>
+                    {item.statusPresence}
+                  </Text>
+                  {item.isReturn === true ? (
+                    <Text style={styles.dataContainerTime}>
+                      {item.out?.slice(0, 5)}
+                    </Text>
+                  ) : (
+                    <Text style={styles.dataContainerTime}>
+                      {item.in?.slice(0, 5)}
+                    </Text>
                   )}
                 </View>
-                <Text style={styles.dataContainerPresense}>
-                  {item.statusPresence}
-                </Text>
-                {item.isReturn === true ? (
-                  <Text style={styles.dataContainerTime}>
-                    {item.out?.slice(0, 5)}
-                  </Text>
-                ) : (
-                  <Text style={styles.dataContainerTime}>
-                    {item.in?.slice(0, 5)}
-                  </Text>
-                )}
-              </View>
-            ) || <Text>data sedang di muat</Text>,
-        )}
+              ) || <Text>data sedang di muat</Text>,
+          )}
+        </View>
+        <Gap height={100} />
       </ScrollView>
 
       {/* qr button */}
-      <TouchableOpacity onPress={() => navigation.navigate('Camera', {token})}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('Camera', {token, userName: userData.name})
+        }>
         <View style={styles.viewQRScan}>
           <Image
             source={require('../assets/QrCodeScanner.png')}
@@ -230,92 +191,45 @@ export default function Home({navigation, route}) {
       </TouchableOpacity>
 
       {/* modal calender */}
-      <Modal
+      <ModalCalender
         visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={closeModal}>
-        <View style={styles.viewModal}>
-          <Pressable style={styles.modalBackdrop} onPress={closeModal} />
-          <View style={styles.viewModalContainer}>
-            <View style={styles.viewModalHeader}>
-              <Icon name={'calendar'} color={'black'} size={25} />
-              <Text style={styles.textHeaderModal}>Pilih Bulan</Text>
-              <TouchableOpacity style={{elevation: 5}} onPress={closeModal}>
-                <Icon name={'close-circle'} color={'black'} size={25} />
-              </TouchableOpacity>
-            </View>
-            <Gap height={15} />
-            <View style={{marginHorizontal: 10}}>
-              <ScrollView style={{height: '85%'}}>
-                {visibleMonth.map((months, index) => {
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setSeletedMonth(index), closeModal();
-                      }}>
-                      <View style={styles.viewModalMonth}>
-                        <View>
-                          <Text style={styles.textModalMonth}>{months}</Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onRequestClose={closeModal}
+        visibleMonth={visibleMonth.map((months, index) => {
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                setSeletedMonth(index), closeModal();
+              }}>
+              <View style={styles.viewModalMonth}>
+                <View>
+                  <Text style={styles.textModalMonth}>{months}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  viewRenderData: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
   viewModalMonth: {
     backgroundColor: '#EBEBEB',
     borderRadius: 10,
     marginVertical: 5,
-  },
-  textHeaderModal: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'black',
   },
   textModalMonth: {
     margin: 10,
     fontSize: 14,
     fontWeight: '500',
     color: 'black',
-  },
-  viewModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  viewModalContainer: {
-    backgroundColor: 'white',
-    width: '80%',
-    height: '50%',
-    padding: 20,
-    borderRadius: 15,
-    elevation: 5,
-  },
-  modalBackdrop: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    backgroundColor: 'black',
-    opacity: 0.3,
-  },
-  viewModal: {
-    justifyContent: 'center',
-    flex: 1,
-    alignItems: 'center',
-    maxWidth: 480,
-    alignSelf: 'center',
-    width: '100%',
   },
   dataContainerHadir: {
     backgroundColor: '#1E90FF',
@@ -345,16 +259,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 5,
   },
-  textMonthControl: {
-    fontSize: 15,
-    fontWeight: '400',
-    color: 'black',
-  },
-  viewBtnCalender: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
   viewQRScan: {
     width: 65,
     height: 65,
@@ -362,105 +266,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4CB00',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'flex-end',
     margin: 30,
-  },
-  viewMonthControl: {
-    marginHorizontal: 30,
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textUserEmail: {
-    color: 'black',
-    fontSize: 15,
-  },
-  textUserName: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: 'black',
-  },
-  viewMainHeader: {
-    marginHorizontal: 20,
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textWelcome: {
-    fontSize: 16,
-    fontWeight: '300',
-    color: 'black',
-    fontStyle: 'italic',
-  },
-  textHeader: {
-    fontSize: 20,
-    color: 'black',
-    fontWeight: '700',
-  },
-  viewTopHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  viewRenderHeader: {
-    margin: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  btnCalender: {
-    backgroundColor: 'white',
-    width: 40,
-    height: 40,
-    borderRadius: 40 / 2,
+    right: 0,
+    bottom: 0,
+    position: 'absolute',
     elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  btnMonth: {
-    width: 100,
-    height: 25,
-    borderRadius: 5,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  btnArrow: {
-    backgroundColor: 'white',
-    width: 30,
-    height: 30,
-    borderRadius: 30 / 2,
-    elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  calendar: {
-    flexGrow: 1,
-  },
-  item: {
-    flex: 1,
-    margin: 5,
-    height: 100,
-    borderRadius: 10,
-    backgroundColor: '#000',
-  },
-  hadir: {
-    backgroundColor: '#4DB6AC',
-  },
-  dateText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  statusText: {
-    fontSize: 16,
-    color: '#FFF',
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#FFF',
   },
 });

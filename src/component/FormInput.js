@@ -31,7 +31,7 @@ export default function FormInput({
         <TextInput
           placeholder={placeholder}
           placeholderTextColor={'grey'}
-          style={{flex: 1}}
+          style={{flex: 1, color: 'black'}}
           secureTextEntry={password && secure}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}

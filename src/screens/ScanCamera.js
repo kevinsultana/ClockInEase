@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   PermissionsAndroid,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
@@ -17,9 +18,12 @@ import {
 } from 'react-native-vision-camera';
 import axios from 'axios';
 import ApiRequest from '../api/ApiRequest';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Gap} from '../component';
 
 export default function ScanCamera({navigation, route}) {
   const token = route.params.token;
+  const userName = route.params.userName;
 
   const device = useCameraDevice('back');
   const [hasPermission, setHasPermission] = useState(false);
@@ -29,7 +33,6 @@ export default function ScanCamera({navigation, route}) {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.CAMERA,
       );
-      console.log(granted);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         setHasPermission(true);
       } else {
@@ -55,7 +58,6 @@ export default function ScanCamera({navigation, route}) {
 
       console.log(response.data);
       Alert.alert('', response.data.message);
-      ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
       navigation.goBack();
     } catch (error) {
       console.log('Presensi masuk yang error', error);
@@ -66,9 +68,17 @@ export default function ScanCamera({navigation, route}) {
     try {
       const response = await ApiRequest(token).post('/presence-out', null);
       console.log(response.data);
-      Alert.alert('', response.data.message);
-      ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
-      navigation.goBack();
+      if (
+        response.data.message ==
+        `HAI ${userName.toUpperCase()} ANDA BELUM PRESENSI MASUK, SILAHKAN PRESENSI MASUK TERLEBIH DAHULU`
+      ) {
+        Alert.alert('', 'Presensi Masuk Terlebih Dahulu.', [
+          {text: 'OK', onPress: () => setScanned(false)},
+        ]);
+      } else {
+        Alert.alert('', response.data.message);
+        navigation.goBack();
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log('axios error :', error.response.data);
@@ -79,13 +89,26 @@ export default function ScanCamera({navigation, route}) {
 
   const PermissionsPage = () => (
     <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
-      <Text>Camera permission is required to scan QR codes.</Text>
-      <Button
-        title="Request Permission"
-        onPress={async () => {
-          await Linking.openSettings();
-        }}
-      />
+      <View style={styles.viewModalPermission}>
+        <Icon name={'alert'} size={25} color={'black'} />
+        <Gap width={20} />
+        <Text style={{color: 'black', fontSize: 16}}>
+          Izin Kamera Diperlukan
+        </Text>
+        <Gap width={20} />
+        <TouchableOpacity>
+          <View style={styles.viewModalHeader}>
+            <Icon
+              name={'refresh'}
+              size={25}
+              color={'black'}
+              onPress={async () => {
+                await Linking.openSettings();
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -124,7 +147,6 @@ export default function ScanCamera({navigation, route}) {
   };
 
   if (!hasPermission) return <PermissionsPage />;
-  if (device == null) return <NoCameraDeviceError />;
 
   if (scanned === true) {
     return (
@@ -139,15 +161,55 @@ export default function ScanCamera({navigation, route}) {
       <View style={{flex: 1}}>
         <Camera
           codeScanner={codeScanner}
-          style={StyleSheet.absoluteFill}
+          style={{width: '100%', height: '100%'}}
           device={device}
           isActive={true}
         />
-        <Button title="kembali" onPress={() => navigation.goBack()} />
+        <TouchableOpacity
+          style={styles.viewLocBtn}
+          onPress={() => navigation.goBack()}>
+          <View style={styles.viewBtn}>
+            <Text style={{color: 'black', fontSize: 20}}>Cancel</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     );
 }
 const styles = StyleSheet.create({
+  viewBtn: {
+    backgroundColor: 'white',
+    bottom: 0,
+    position: 'absolute',
+    width: 100,
+    height: 30,
+    borderRadius: 30 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewLocBtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    marginVertical: -50,
+  },
+  viewModalHeader: {
+    width: 40,
+    height: 40,
+    borderRadius: 40 / 2,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+  viewModalPermission: {
+    height: 80,
+    width: '80%',
+    backgroundColor: '#e8e8e8',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+  },
   viewLoadingModal: {
     backgroundColor: 'white',
     width: 200,
