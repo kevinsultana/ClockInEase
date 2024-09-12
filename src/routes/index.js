@@ -16,12 +16,12 @@ export default function Navigator() {
         headerShown: false,
         statusBarColor: '#D9D9D9',
       }}>
+      {/* <Stack.Screen name="Demo" component={Demo} /> */}
       <Stack.Screen name="Splash Screen" component={SplashScreen} />
       <Stack.Screen name="Camera" component={ScanCamera} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Home" component={Home} />
-      {/* <Stack.Screen name="Demo" component={Demo} /> */}
     </Stack.Navigator>
   );
 }
