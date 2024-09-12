@@ -1,9 +1,38 @@
-import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableNativeFeedback,
+  View,
+} from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Gap from '../Gap';
+import {useSelector} from 'react-redux';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
-export default function HomeHeader({onPress, userDataEmail, userDataName}) {
+export default function HomeHeader({navigation}) {
+  const userData = useSelector(state => state.credential.profile);
+
+  const submitLogout = async _id => {
+    Alert.alert('Keluar?', 'Sesi anda akan berakhir', [
+      {
+        text: 'Keluar',
+        onPress: async () => {
+          try {
+            await EncryptedStorage.removeItem('credentials');
+            navigation.replace('Login');
+          } catch (error) {
+            navigation.replace('Login');
+          }
+        },
+      },
+      {
+        text: 'Batal',
+      },
+    ]);
+  };
+
   return (
     <View>
       <View style={styles.viewTopHeader}>
@@ -14,7 +43,7 @@ export default function HomeHeader({onPress, userDataEmail, userDataName}) {
               size={40}
               color={'black'}
               style={{transform: [{rotate: '180deg'}]}}
-              onPress={onPress}
+              onPress={() => submitLogout()}
             />
           </View>
         </TouchableNativeFeedback>
@@ -32,8 +61,8 @@ export default function HomeHeader({onPress, userDataEmail, userDataName}) {
         <Icon name={'account-circle'} size={60} color={'black'} />
         <Gap width={10} />
         <View>
-          <Text style={styles.textUserName}>{userDataName}</Text>
-          <Text style={styles.textUserEmail}>{userDataEmail}</Text>
+          <Text style={styles.textUserName}>{userData.name}</Text>
+          <Text style={styles.textUserEmail}>{userData.email}</Text>
         </View>
       </View>
     </View>

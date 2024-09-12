@@ -11,8 +11,12 @@ import {Background, FormInput, Gap} from '../component';
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import ApiRequest from '../api/ApiRequest';
+import {useDispatch} from 'react-redux';
+import {setToken} from '../redux/slice/authSlice';
 
 export default function Login({navigation}) {
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +33,8 @@ export default function Login({navigation}) {
         JSON.stringify({email: email, password: password}),
       );
       setLoading(false);
-      navigation.replace('Home', {token: response.data.token});
+      dispatch(setToken(response.data.token));
+      navigation.replace('Home');
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error)) {

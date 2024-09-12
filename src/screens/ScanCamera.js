@@ -20,9 +20,11 @@ import axios from 'axios';
 import ApiRequest from '../api/ApiRequest';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Gap} from '../component';
+import {useSelector} from 'react-redux';
 
 export default function ScanCamera({navigation, route}) {
-  const token = route.params.token;
+  const token = useSelector(state => state.credential.token);
+  // const token = route.params.token;
   const userName = route.params.userName;
 
   const device = useCameraDevice('back');

@@ -18,22 +18,37 @@ import ApiRequest from '../api/ApiRequest';
 import HomeHeader from '../component/home/HomeHeader';
 import ModalCalender from '../component/home/ModalCalender';
 import MonthControl from '../component/home/MonthControl';
+import {useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
+import {setPresence} from '../redux/slice/presenceSlice';
+import {setProfile} from '../redux/slice/authSlice';
 
 export default function Home({navigation, route}) {
-  const token = route.params.token;
+  const token = useSelector(state => state.credential.token);
 
-  const [userData, setUserData] = useState({
-    name: 'Nama User',
-    email: 'email@user.com',
-  });
+  const dispatch = useDispatch();
+  const data = useSelector(state => state.presence.presence);
+
+  // const token = route.params.token;
+
+  // const [userData, setUserData] = useState({
+  //   name: 'Nama User',
+  //   email: 'email@user.com',
+  // });
 
   const getUser = async () => {
     try {
       const response = await ApiRequest(token).get('/user');
-      setUserData({
-        name: response.data.user.name,
-        email: response.data.user.email,
-      });
+      dispatch(
+        setProfile({
+          name: response.data.user.name,
+          email: response.data.user.email,
+        }),
+      );
+      // setUserData({
+      //   name: response.data.user.name,
+      //   email: response.data.user.email,
+      // });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log('Axios error:', error.response?.data || error.message);
@@ -44,13 +59,14 @@ export default function Home({navigation, route}) {
   };
 
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
 
   const getDataUser = async () => {
     setLoading(true);
     try {
       const response = await ApiRequest(token).get('/get-data-user-in-year');
-      setData(response.data);
+      dispatch(setPresence(response.data));
+      // setData(response.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -90,35 +106,12 @@ export default function Home({navigation, route}) {
   const [modalVisible, setModalVisible] = useState(false);
   const closeModal = () => setModalVisible(false);
 
-  const submitLogout = async _id => {
-    Alert.alert('Keluar?', 'Sesi anda akan berakhir', [
-      {
-        text: 'Keluar',
-        onPress: async () => {
-          try {
-            await EncryptedStorage.removeItem('credentials');
-            navigation.replace('Login');
-          } catch (error) {
-            navigation.replace('Login');
-          }
-        },
-      },
-      {
-        text: 'Batal',
-      },
-    ]);
-  };
-
   return (
     <View style={{flex: 1}}>
       <Background />
 
       {/* header logout, nama apk, welcome, userdata*/}
-      <HomeHeader
-        onPress={() => submitLogout()}
-        userDataEmail={userData.email}
-        userDataName={userData.name}
-      />
+      <HomeHeader navigation={navigation} />
 
       {/* month control */}
       <MonthControl
