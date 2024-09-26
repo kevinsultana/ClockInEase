@@ -15,6 +15,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import ApiRequest from '../api/ApiRequest';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {useDispatch} from 'react-redux';
+import {setToken} from '../redux/slice/authSlice';
 
 export default function Register({navigation}) {
   const [name, setName] = useState('');
@@ -81,6 +83,8 @@ export default function Register({navigation}) {
 
   const [loading, setLoading] = useState(false);
 
+  const dispatch = useDispatch();
+
   const submitRegister = async () => {
     setLoading(true);
     try {
@@ -105,7 +109,8 @@ export default function Register({navigation}) {
         JSON.stringify({email: email, password: password}),
       );
       setLoading(false);
-      navigation.replace('Home', {token: responseLogin.data.token});
+      dispatch(setToken(responseLogin.data.token));
+      navigation.replace('Home');
       ToastAndroid.show('Berhasil Didaftarkan', ToastAndroid.SHORT);
     } catch (error) {
       setLoading(false);

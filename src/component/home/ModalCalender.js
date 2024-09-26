@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     elevation: 5,
+    maxWidth: 480,
   },
   modalBackdrop: {
     width: '100%',
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
     alignItems: 'center',
-    maxWidth: 480,
+    // maxWidth: 480,
     alignSelf: 'center',
     width: '100%',
   },

@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   viewMonthControl: {
     marginHorizontal: 30,
-    marginVertical: 10,
+    // marginVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

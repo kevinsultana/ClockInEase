@@ -4,8 +4,12 @@ import {Background} from '../component';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import axios from 'axios';
 import ApiRequest from '../api/ApiRequest';
+import {useDispatch} from 'react-redux';
+import {setToken} from '../redux/slice/authSlice';
 
 export default function SplashScreen({navigation}) {
+  const dispatch = useDispatch();
+
   async function refreshToken() {
     try {
       const credentials = await EncryptedStorage.getItem('credentials');
@@ -14,7 +18,8 @@ export default function SplashScreen({navigation}) {
           '/login',
           JSON.parse(credentials),
         );
-        navigation.replace('Home', {token: response.data.token});
+        dispatch(setToken(response.data.token));
+        navigation.replace('Home');
       } else {
         setTimeout(() => {
           navigation.replace('Login');

@@ -1,5 +1,4 @@
 import {
-  Alert,
   Image,
   RefreshControl,
   ScrollView,
@@ -12,7 +11,6 @@ import React, {useState} from 'react';
 import {Background, Gap} from '../component';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import EncryptedStorage from 'react-native-encrypted-storage';
 import {useFocusEffect} from '@react-navigation/native';
 import ApiRequest from '../api/ApiRequest';
 import HomeHeader from '../component/home/HomeHeader';
@@ -23,18 +21,11 @@ import {useDispatch} from 'react-redux';
 import {setPresence} from '../redux/slice/presenceSlice';
 import {setProfile} from '../redux/slice/authSlice';
 
-export default function Home({navigation, route}) {
+export default function Home({navigation}) {
   const token = useSelector(state => state.credential.token);
 
   const dispatch = useDispatch();
   const data = useSelector(state => state.presence.presence);
-
-  // const token = route.params.token;
-
-  // const [userData, setUserData] = useState({
-  //   name: 'Nama User',
-  //   email: 'email@user.com',
-  // });
 
   const getUser = async () => {
     try {
@@ -45,10 +36,6 @@ export default function Home({navigation, route}) {
           email: response.data.user.email,
         }),
       );
-      // setUserData({
-      //   name: response.data.user.name,
-      //   email: response.data.user.email,
-      // });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log('Axios error:', error.response?.data || error.message);
@@ -59,7 +46,6 @@ export default function Home({navigation, route}) {
   };
 
   const [loading, setLoading] = useState(false);
-  // const [data, setData] = useState([]);
 
   const getDataUser = async () => {
     setLoading(true);
@@ -171,10 +157,7 @@ export default function Home({navigation, route}) {
       </ScrollView>
 
       {/* qr button */}
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('Camera', {token, userName: userData.name})
-        }>
+      <TouchableOpacity onPress={() => navigation.navigate('Camera')}>
         <View style={styles.viewQRScan}>
           <Image
             source={require('../assets/QrCodeScanner.png')}
@@ -212,6 +195,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+    maxWidth: 640,
+    alignSelf: 'center',
   },
   viewModalMonth: {
     backgroundColor: '#EBEBEB',

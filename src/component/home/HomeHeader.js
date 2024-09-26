@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   viewMainHeader: {
     marginHorizontal: 20,
-    marginVertical: 10,
+    marginVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 20,
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 5,
   },
 });

@@ -1,10 +1,8 @@
 import {
-  Button,
   StyleSheet,
   Text,
   View,
   Linking,
-  ToastAndroid,
   Alert,
   ActivityIndicator,
   PermissionsAndroid,
@@ -22,10 +20,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Gap} from '../component';
 import {useSelector} from 'react-redux';
 
-export default function ScanCamera({navigation, route}) {
+export default function ScanCamera({navigation}) {
   const token = useSelector(state => state.credential.token);
-  // const token = route.params.token;
-  const userName = route.params.userName;
+
+  const userName = useSelector(state => state.credential.profile.name);
 
   const device = useCameraDevice('back');
   const [hasPermission, setHasPermission] = useState(false);
